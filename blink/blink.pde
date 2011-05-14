@@ -13,15 +13,8 @@
 int row[] = {2,12,4,11,10,8,7};
 int column[] = {5,6,3,9,13};
 
-int light;
-int rownumber;
-int columnnumber;
 
-int columnpin;
-int rowpin;
-int thispin;
 
-char newchar = ' ';
 
 boolean wug[ROWS][COLUMNS] = {
   {0,1,1,0,0},
@@ -262,6 +255,10 @@ String message = "HELLO WORLD  ";
 unsigned long messageStartTime;
 
 #define SPEAKER 1
+#define POT0 0 
+#define POT1 1
+//got this by experimentation
+#define POTMAX 912 
 
 void setup()
 {
@@ -282,7 +279,7 @@ void setup()
   {
     pinMode(column[i],OUTPUT);
   }
-  //Serial.begin(9600);
+  Serial.begin(9600);
 }
 
 void loop()
@@ -290,8 +287,10 @@ void loop()
   //depict(wug);
   //depictchar('X');
   //getSerial();
-  drawMessage();
-  tone(SPEAKER, 3830);
+  //drawMessage();
+  //tone(SPEAKER, 3830);
+  int i = analogRead(POT0);
+  bar0(i, POTMAX);
 }
 
 
@@ -307,31 +306,24 @@ void drawMessage(){
  }
 }
 
-
-
-/*
-  if (Serial.available() > 0) 
-  {
-    newchar=Serial.read();
-  }  
-  depictchar(newchar);
-  */
-
 void getSerial()
 {
   if (Serial.available() > 0) 
   {
     
-    light = (Serial.read());
-    rownumber = light%8;
-    columnnumber = light/8;
+    int light = (Serial.read());
+    int rownumber = light%8;
+    int columnnumber = light/8;
     lightLed(rownumber,columnnumber);
   }  
 }
 
 
+
+
 void lightLed (int rownumber, int columnnumber)
 {
+  int rowpin, columnpin;
   for(int i=0; i< ROWS;i++) {
     for(int j = 0; j < COLUMNS; j++) {
       rowpin = row[i];
@@ -349,9 +341,23 @@ void lightLed (int rownumber, int columnnumber)
 }
   
  
+ void bar0(int myval, int maxval) {
+  //Serial.println(myval);  
+  int s =  myval * ROWS * COLUMNS / maxval;
+  //Serial.println(s);
+  for(int i=0; i< ROWS; i++) {
+    for(int j = 0; j < COLUMNS; j++) {
+       if (s > j + i * COLUMNS) {
+        lightLed(i,j);
+       }
+     }
+  }   
+}
+ 
   
   void depict(boolean image[ROWS][COLUMNS])
   {
+    int rowpin, columnpin;
     for(int i=0;i<ROWS;i++) {
       for(int j=0;j<COLUMNS; j++) {
         rowpin = row[i];
@@ -372,6 +378,7 @@ void lightLed (int rownumber, int columnnumber)
 
 int depictchar(char thischar)
 {
+  int rowpin, columnpin;
   int offset = 0;
   if(thischar == ' ')
   {

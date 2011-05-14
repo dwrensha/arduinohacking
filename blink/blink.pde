@@ -253,10 +253,27 @@ boolean wug[ROWS][COLUMNS] = {
 {0,0,0,0,0},
 {0,0,0,0,0},
 };
-  
+
+#define LETTER_MILLIS 500
+
+
+String message = "HELLO WORLD  ";  
+
+unsigned long messageStartTime;
+
+#define SPEAKER 1
 
 void setup()
 {
+  message = "I NEED A HUG  ";
+  messageStartTime = millis();
+ 
+  pinMode(0, OUTPUT);
+  pinMode(SPEAKER, OUTPUT); 
+  
+  digitalWrite(SPEAKER,LOW);
+  
+ // the LED array
   for(int i=0; i<ROWS; i++)
   {
     pinMode(row[i],OUTPUT);
@@ -265,15 +282,32 @@ void setup()
   {
     pinMode(column[i],OUTPUT);
   }
-  Serial.begin(9600);
+  //Serial.begin(9600);
 }
 
 void loop()
 {
   //depict(wug);
-  depictchar('A');
+  //depictchar('X');
   //getSerial();
+  drawMessage();
+  tone(SPEAKER, 3830);
 }
+
+
+unsigned long messageMillis() {
+   return millis() - messageStartTime; 
+}
+
+void drawMessage(){
+  
+ int i = (messageMillis() / LETTER_MILLIS) % message.length();
+ if(messageMillis() % LETTER_MILLIS   < LETTER_MILLIS * 3 / 4){
+   depictchar(message.charAt(i));
+ }
+}
+
+
 
 /*
   if (Serial.available() > 0) 

@@ -255,15 +255,23 @@ String message = "HELLO WORLD  ";
 unsigned long messageStartTime;
 
 #define SPEAKER 1
+
 #define POT0 0 
 #define POT1 1
 //got this by experimentation
 #define POTMAX 912 
 
+#define POT_BUFFER_SIZE 50
+
+int lastpot0avg, lastpot1avg;
+int pot0tot,pot1tot;
+int potCounter = 0;
+
 void setup()
 {
   message = "I NEED A HUG  ";
   messageStartTime = millis();
+    
  
   pinMode(0, OUTPUT);
   pinMode(SPEAKER, OUTPUT); 
@@ -282,6 +290,15 @@ void setup()
   Serial.begin(9600);
 }
 
+
+/* 0 = display message
+   10 = pot0
+   11 = pot1
+*/
+int mode= 0;
+
+unsigned long returnTime;
+
 void loop()
 {
   //depict(wug);
@@ -289,8 +306,49 @@ void loop()
   //getSerial();
   //drawMessage();
   //tone(SPEAKER, 3830);
-  int i = analogRead(POT0);
-  bar0(i, POTMAX);
+  int pot0tmp = analogRead(POT0);
+  int pot1tmp = analogRead(POT1);
+  pot0tot += pot0tmp;
+  pot1tot += pot1tmp;
+  potCounter++;
+
+    if(potCounter >= POT_BUFFER_SIZE){
+      int pot0avg = pot0tot / POT_BUFFER_SIZE;
+      int pot1avg = pot1tot / POT_BUFFER_SIZE;
+      if(abs(pot0avg - lastpot0avg) > 5) {
+        mode = 10;
+        returnTime = millis() + 2000;
+      } else if(abs(pot1avg - lastpot1avg) > 5) {
+        mode = 11;
+        returnTime = millis() + 2000;
+      } 
+      Serial.println(pot0avg);
+            Serial.println(potCounter);
+      lastpot0avg = pot0avg;
+      lastpot1avg = pot1avg;
+      pot0tot = 0;
+      pot1tot = 0;
+      potCounter = 0;
+    }  
+
+
+  if(mode == 0){
+    drawMessage();
+
+
+    
+  } else if (mode == 10){
+     bar0(analogRead(POT0),POTMAX);
+     if(millis() > returnTime) {
+        mode = 0; 
+     }
+  } else if (mode == 11){
+     bar1(analogRead(POT1),POTMAX);
+     if(millis() > returnTime) {
+        mode = 0; 
+     }
+  }
+
 }
 
 
@@ -348,6 +406,19 @@ void lightLed (int rownumber, int columnnumber)
   for(int i=0; i< ROWS; i++) {
     for(int j = 0; j < COLUMNS; j++) {
        if (s > j + i * COLUMNS) {
+        lightLed(i,j);
+       }
+     }
+  }   
+}
+
+void bar1(int myval, int maxval) {
+  //Serial.println(myval);  
+  int s =  myval * ROWS * COLUMNS / maxval;
+  //Serial.println(s);
+  for(int i=0; i< ROWS; i++) {
+    for(int j = 0; j < COLUMNS; j++) {
+       if (s > i + j * ROWS) {
         lightLed(i,j);
        }
      }

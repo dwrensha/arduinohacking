@@ -1,5 +1,5 @@
 
-
+#include <avr/pgmspace.h>
 
 //int row[] = {0,1,11,3,10,9,7,6};
 //int column[] = {0,4,5,2,8,12};
@@ -26,8 +26,8 @@ boolean wug[ROWS][COLUMNS] = {
   {0,1,1,0,0}
   };
   
-  
-  boolean alphabet[217][COLUMNS] =
+
+ boolean alphabet[217][COLUMNS] PROGMEM  =
   {
 //a
 {0,1,1,1,0},
@@ -309,16 +309,24 @@ unsigned long messageStartTime;
 
 #define POT_BUFFER_SIZE 100
 
-int lastpot0avg, lastpot1avg;
-int pot0tot,pot1tot;
+int lastpot0[POT_BUFFER_SIZE], lastpot1[POT_BUFFER_SIZE];
+long pot0tot, pot1tot;
+int pot0avg, pot1avg;
 int potCounter = 0;
+
+int toneval = 0;
 
 #define FOAM 2
 
 
 void setup()
 {
-  message = "I NEED A HUG  ";
+  for(int i = 0; i < POT_BUFFER_SIZE; i++){
+   lastpot0[i] = 0;
+   lastpot1[i] = 0; 
+  }
+  
+  message = "ABCDEFGHIJKL  ";
   messageStartTime = millis();
     
  
@@ -351,37 +359,50 @@ unsigned long returnTime;
 
 void loop()
 {
+  
   //depict(wug);
   //depictchar('X');
   //getSerial();
   //drawMessage();
-  int toneval = (10 *(analogRead(POT0))  ); // analogRead(FOAM) - 900 * 800;
+  //int toneval = ((analogRead(POT1))  ); // analogRead(FOAM) - 900 * 800;
   //Serial.println(toneval);
-  tone(SPEAKER, toneval  );
+  tone(SPEAKER, toneval );
 
   int pot0tmp = analogRead(POT0);
   int pot1tmp = analogRead(POT1);
-  message = greetings[(pot0tmp * GREETINGS  / POTMAX) % GREETINGS ];
-  charRotation = lastpot1avg * 20 / POTMAX;
+  //message = greetings[(pot1tmp * GREETINGS  / POTMAX) % GREETINGS ];
+  charRotation = 0 ; //map(pot1avg, 0, POTMAX, 10, 47);
+  /*
+  Serial.println("-------");
+  Serial.println(potCounter);
+    Serial.println("pot0avg:");
+  Serial.println(pot0avg);
+  Serial.println("pot1avg:");
+  Serial.println(pot1avg);
+  */
+  toneval = map(pot1avg,0,POTMAX, 200,900);
   pot0tot += pot0tmp;
+  pot0tot -= lastpot0[potCounter];
+  lastpot0[potCounter] = pot0tmp; 
   pot1tot += pot1tmp;
+  pot1tot -= lastpot1[potCounter];
+  lastpot1[potCounter] = pot1tmp; 
   potCounter++;
-    if(potCounter >= POT_BUFFER_SIZE){
-      int pot0avg = pot0tot / POT_BUFFER_SIZE;
-      int pot1avg = pot1tot / POT_BUFFER_SIZE;
-      if(abs(pot0avg - lastpot0avg) > 5) {
+  if (potCounter >= POT_BUFFER_SIZE) potCounter = 0;
+  int pot0avgtmp = pot0tot / POT_BUFFER_SIZE;
+  int pot1avgtmp = pot1tot / POT_BUFFER_SIZE;
+   
+  
+  if(abs(pot0avg - pot0avgtmp) > 1) {
         mode = 10;
         returnTime = millis() + 1000;
-      } else if(abs(pot1avg - lastpot1avg) > 5) {
+   } else if(abs(pot1avg - pot1avgtmp) > 1) {
         mode = 11;
         returnTime = millis() + 1000;
-      } 
-      lastpot0avg = pot0avg;
-      lastpot1avg = pot1avg;
-      pot0tot = 0;
-      pot1tot = 0;
-      potCounter = 0;
-    }  
+   } 
+   pot0avg = pot0avgtmp;
+   pot1avg = pot1avgtmp;
+
 
   if(mode == 0){
     drawMessage();
@@ -521,7 +542,7 @@ int depictchar(char thischar)
       for(int j=0;j<COLUMNS;j++) {
         rowpin = row[i];
         columnpin = column[j];
-        if(alphabet[(offset+i)][j] != 0)
+        if(pgm_read_byte_near(((boolean *)  alphabet) + (offset+i) * COLUMNS + j) != 0)
         {
           digitalWrite(columnpin, HIGH);
           digitalWrite(rowpin, LOW);

@@ -10,7 +10,7 @@
 #define DELAY 100
 
 
-int row[] = {2,12,4,11,10,8,7};
+int row[] = {1,12,4,11,10,8,7};
 int column[] = {5,6,3,9,13};
 
 
@@ -27,6 +27,7 @@ boolean wug[ROWS][COLUMNS] = {
   };
   
 
+// progmem means store in flash
  boolean alphabet[217][COLUMNS] PROGMEM  =
   {
 //a
@@ -300,7 +301,17 @@ String message = "HELLO WORLD  ";
 
 unsigned long messageStartTime;
 
-#define SPEAKER 1
+#define SPEAKER 2
+
+#define BIGBUTT A2
+#define SMALLBUTT A3
+
+#define BUTT_BUFFER_SIZE 25
+
+boolean lastbigbutt[BUTT_BUFFER_SIZE], lastsmallbutt[BUTT_BUFFER_SIZE];
+long bigbutt_tot, smallbutt_tot;
+int bigbutt_avg, smallbutt_avg;
+int buttCounter = 0;
 
 #define POT0 0 
 #define POT1 1
@@ -321,12 +332,20 @@ int toneval = 0;
 
 void setup()
 {
+  
+  for(int i = 0; i < BUTT_BUFFER_SIZE; i++){
+   lastbigbutt[i] = 1;
+   lastsmallbutt[i] = 1; 
+  }
+  bigbutt_tot = BUTT_BUFFER_SIZE;
+  smallbutt_tot = BUTT_BUFFER_SIZE;
+  
   for(int i = 0; i < POT_BUFFER_SIZE; i++){
    lastpot0[i] = 0;
    lastpot1[i] = 0; 
   }
   
-  message = "ABCDEFGHIJKL  ";
+  message = "ABCDEFGHIJKLMNOPQRSTUVWXYZ  ";
   messageStartTime = millis();
     
  
@@ -360,26 +379,35 @@ unsigned long returnTime;
 void loop()
 {
   
-  //depict(wug);
-  //depictchar('X');
-  //getSerial();
-  //drawMessage();
-  //int toneval = ((analogRead(POT1))  ); // analogRead(FOAM) - 900 * 800;
+  int bigbutt_tmp = digitalRead(BIGBUTT);
+  int smallbutt_tmp = digitalRead(SMALLBUTT);
+  if(bigbutt_tmp == HIGH) bigbutt_tot += bigbutt_tmp;
+  bigbutt_tot -= lastbigbutt[buttCounter];
+  lastbigbutt[buttCounter] = bigbutt_tmp; 
+  if(smallbutt_tmp == HIGH) smallbutt_tot += smallbutt_tmp;
+  smallbutt_tot -= lastsmallbutt[buttCounter];
+  lastsmallbutt[buttCounter] = smallbutt_tmp;
+  
+  buttCounter++;
+  if (buttCounter >= BUTT_BUFFER_SIZE) buttCounter = 0;
+  bigbutt_avg = bigbutt_tot / BUTT_BUFFER_SIZE;
+  smallbutt_avg = smallbutt_tot / BUTT_BUFFER_SIZE;
+  
   //Serial.println(toneval);
-  tone(SPEAKER, toneval );
+  if(bigbutt_avg == 0) {
+    tone(SPEAKER, 440 );
+  } else  if(smallbutt_avg == 0) {
+    tone(SPEAKER, 220 );
+    //noTone(SPEAKER);
+    
+  } else {
+   noTone(SPEAKER); 
+  } 
 
   int pot0tmp = analogRead(POT0);
   int pot1tmp = analogRead(POT1);
   //message = greetings[(pot1tmp * GREETINGS  / POTMAX) % GREETINGS ];
   charRotation = 0 ; //map(pot1avg, 0, POTMAX, 10, 47);
-  /*
-  Serial.println("-------");
-  Serial.println(potCounter);
-    Serial.println("pot0avg:");
-  Serial.println(pot0avg);
-  Serial.println("pot1avg:");
-  Serial.println(pot1avg);
-  */
   toneval = map(pot1avg,0,POTMAX, 200,900);
   pot0tot += pot0tmp;
   pot0tot -= lastpot0[potCounter];

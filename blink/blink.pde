@@ -281,8 +281,20 @@ boolean wug[ROWS][COLUMNS] = {
   };
   
 
-#define LETTER_MILLIS 500
+#define LETTER_MILLIS 300
 
+#define GREETINGS 6
+
+String greetings[] = {
+ "JEG HAR BRUG FOR ET KRAM   ",
+ "JAI BESOIN DUN CALIN  ",
+ "I NEED A HUG   ",
+ "IK HEB EEN KNUFFEL   ",
+ "TARVITSEN HALAUKSEN   ",
+ "I GA LE BARROG  "
+ };
+
+int charRotation = 0;
 
 String message = "HELLO WORLD  ";  
 
@@ -324,7 +336,7 @@ void setup()
   {
     pinMode(column[i],OUTPUT);
   }
- // Serial.begin(9600);
+  //Serial.begin(9600);
 }
 
 
@@ -333,6 +345,7 @@ void setup()
    11 = pot1
 */
 int mode= 0;
+
 
 unsigned long returnTime;
 
@@ -344,9 +357,12 @@ void loop()
   //drawMessage();
   int toneval = (10 *(analogRead(POT0))  ); // analogRead(FOAM) - 900 * 800;
   //Serial.println(toneval);
-  tone(SPEAKER, toneval    );
+  tone(SPEAKER, toneval  );
+
   int pot0tmp = analogRead(POT0);
   int pot1tmp = analogRead(POT1);
+  message = greetings[(pot0tmp * GREETINGS  / POTMAX) % GREETINGS ];
+  charRotation = lastpot1avg * 20 / POTMAX;
   pot0tot += pot0tmp;
   pot1tot += pot1tmp;
   potCounter++;
@@ -355,10 +371,10 @@ void loop()
       int pot1avg = pot1tot / POT_BUFFER_SIZE;
       if(abs(pot0avg - lastpot0avg) > 5) {
         mode = 10;
-        returnTime = millis() + 2000;
+        returnTime = millis() + 1000;
       } else if(abs(pot1avg - lastpot1avg) > 5) {
         mode = 11;
-        returnTime = millis() + 2000;
+        returnTime = millis() + 1000;
       } 
       lastpot0avg = pot0avg;
       lastpot1avg = pot1avg;
@@ -393,7 +409,7 @@ void drawMessage(){
   
  int i = (messageMillis() / LETTER_MILLIS) % message.length();
  if(messageMillis() % LETTER_MILLIS   < LETTER_MILLIS * 3 / 4){
-   depictchar(message.charAt(i));
+   depictchar(   rotatechar(message.charAt(i), charRotation)  );
  }
 }
 
@@ -495,7 +511,7 @@ int depictchar(char thischar)
 {
   int rowpin, columnpin;
   int offset = 0;
-  if(thischar == ' ')
+  if(thischar == ' ' )
   {
     clearLed();
     return 0;
@@ -516,3 +532,17 @@ int depictchar(char thischar)
       }
     }
 }
+
+
+char rotatechar( char thischar, int thismany) {
+ int res= (((thischar - 'A' ) + (thismany % 26)) % 26)  + 'A';
+ if(res >= 'A' && res <= 'Z') {
+   return res;
+ } else{
+   return thischar;
+ }
+
+}
+
+
+

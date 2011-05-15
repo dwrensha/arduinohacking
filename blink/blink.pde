@@ -27,7 +27,7 @@ boolean wug[ROWS][COLUMNS] = {
   };
   
   
-  boolean alphabet[189][5] =
+  boolean alphabet[217][COLUMNS] =
   {
 //a
 {0,1,1,1,0},
@@ -237,15 +237,49 @@ boolean wug[ROWS][COLUMNS] = {
 {0,1,0,0,0},
 {1,0,0,0,0},
 {1,1,1,1,1},
-//space
+//[
+{1,1,1,0,0},
+{1,0,1,0,0},
+{1,0,1,0,0},
+{1,0,1,0,0},
+{1,0,1,0,0},
+{1,0,1,0,0},
+{1,1,1,0,0},
+// backslash
+{0,0,0,0,0},
+{0,0,0,0,0},
+{1,0,0,0,0},
+{0,1,0,0,0},
+{0,0,1,0,0},
+{0,0,0,1,0},
+{0,0,0,0,1},
+//]
+{0,0,1,1,1},
+{0,0,1,0,1},
+{0,0,1,0,1},
+{0,0,1,0,1},
+{0,0,1,0,1},
+{0,0,1,0,1},
+{0,0,1,1,1},
+
+{0,0,1,0,0},
+{0,1,0,1,0},
+{1,0,0,0,1},
+{0,1,0,1,0},
+{0,0,1,0,0},
+{0,0,0,0,0},
+{0,0,0,0,0},
+
 {0,0,0,0,0},
 {0,0,0,0,0},
 {0,0,0,0,0},
 {0,0,0,0,0},
 {0,0,0,0,0},
 {0,0,0,0,0},
-{0,0,0,0,0},
-};
+{1,1,1,1,1},
+
+  };
+  
 
 #define LETTER_MILLIS 500
 
@@ -261,11 +295,14 @@ unsigned long messageStartTime;
 //got this by experimentation
 #define POTMAX 912 
 
-#define POT_BUFFER_SIZE 50
+#define POT_BUFFER_SIZE 100
 
 int lastpot0avg, lastpot1avg;
 int pot0tot,pot1tot;
 int potCounter = 0;
+
+#define FOAM 2
+
 
 void setup()
 {
@@ -287,7 +324,7 @@ void setup()
   {
     pinMode(column[i],OUTPUT);
   }
-  Serial.begin(9600);
+ // Serial.begin(9600);
 }
 
 
@@ -305,13 +342,14 @@ void loop()
   //depictchar('X');
   //getSerial();
   //drawMessage();
-  //tone(SPEAKER, 3830);
+  int toneval = (10 *(analogRead(POT0))  ); // analogRead(FOAM) - 900 * 800;
+  //Serial.println(toneval);
+  tone(SPEAKER, toneval    );
   int pot0tmp = analogRead(POT0);
   int pot1tmp = analogRead(POT1);
   pot0tot += pot0tmp;
   pot1tot += pot1tmp;
   potCounter++;
-
     if(potCounter >= POT_BUFFER_SIZE){
       int pot0avg = pot0tot / POT_BUFFER_SIZE;
       int pot1avg = pot1tot / POT_BUFFER_SIZE;
@@ -322,8 +360,6 @@ void loop()
         mode = 11;
         returnTime = millis() + 2000;
       } 
-      Serial.println(pot0avg);
-            Serial.println(potCounter);
       lastpot0avg = pot0avg;
       lastpot1avg = pot1avg;
       pot0tot = 0;
@@ -331,11 +367,8 @@ void loop()
       potCounter = 0;
     }  
 
-
   if(mode == 0){
     drawMessage();
-
-
     
   } else if (mode == 10){
      bar0(analogRead(POT0),POTMAX);
@@ -398,6 +431,17 @@ void lightLed (int rownumber, int columnnumber)
   }    
 }
   
+void clearLed() {
+  for(int i=0; i< ROWS; i++) {
+    for(int j = 0; j < COLUMNS; j++) {
+      int rowpin = row[i];
+      int columnpin = column[j];
+      digitalWrite(columnpin, LOW);
+      digitalWrite(rowpin,HIGH);
+     }
+  }   
+}  
+  
  
  void bar0(int myval, int maxval) {
   //Serial.println(myval);  
@@ -453,7 +497,8 @@ int depictchar(char thischar)
   int offset = 0;
   if(thischar == ' ')
   {
-    offset = 7*int(26);
+    clearLed();
+    return 0;
   }
   else offset = 7*int(thischar-65);
     for(int i=0;i<ROWS;i++) {
@@ -468,7 +513,6 @@ int depictchar(char thischar)
         }
         digitalWrite(columnpin,LOW);
         digitalWrite(rowpin,HIGH);
-
       }
     }
 }

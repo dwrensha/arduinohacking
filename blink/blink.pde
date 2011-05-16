@@ -312,8 +312,8 @@ int column[] = {5,6,3,9,13};
 {1,0,1,0,0},
 {1,0,1,0,0},
 {1,0,1,0,0},
-{1,0,1,0,0},
-{1,1,1,0,0},
+{0,1,1,0,0},
+{0,0,1,0,0},
 // backslash
 {0,0,0,0,0},
 {0,0,0,0,0},
@@ -481,21 +481,28 @@ int column[] = {5,6,3,9,13};
   {0,1,0,1,0},
   {0,1,0,0,1},
   {0,0,1,1,0},
-  {0,1,1,0,0}
+  {0,1,1,0,0},
+  // arrow = 'q'
+  {0,0,1,0,0},
+  {0,0,1,0,0},
+  {0,0,1,0,0},
+  {0,0,1,0,0},
+  {1,0,1,0,1},
+  {0,1,1,1,0},
+  {0,0,1,0,0},
   };
   
 
 #define LETTER_MILLIS 400
 
-#define GREETINGS 6
+#define GREETINGS 5
 
 String greetings[] = {
- "JEG HAR BRUG FOR ET KRAM   ",
- "JAI BESOIN DUN CALIN  ",
- "I NEED A HUG   ",
- "IK HEB EEN KNUFFEL   ",
- "TARVITSEN HALAUKSEN   ",
- "I GA LE BARROG  "
+ "KATSO KAPTEENIN LOKI q  ",
+ "VOIR LE JOURNAL DU CAPITAINE q ",
+ "SEE CAPTAINS LOG q   ",
+ "VEA EL RESGISTRO DEL CAPITAN q  ",
+ "IKUSI KAPITAIN EN SAIOA q  "
  };
 
 int charRotation = 0;
@@ -519,7 +526,7 @@ int buttCounter = 0;
 #define POT0 0 
 #define POT1 1
 //got this by experimentation
-#define POTMAX 912 
+#define POTMAX 911 
 
 #define POT_BUFFER_SIZE 100
 
@@ -597,15 +604,21 @@ void loop()
   
 }
  
- 
+ String entry = ""; 
+unsigned long availTime;
+char lastinp = 'A'; 
  
 void victory() {
  drawMessage(); 
+ updatebuttsensors();
+ if(smallbutt_avg == 0 ) {
+   puzzle = 1;
+   entry = "";
+ }
+ 
 }
  
- String entry = ""; 
-unsigned long availTime;
-char lastinp = 'A';
+
  
 void puzzle2() {
 
@@ -613,12 +626,11 @@ void puzzle2() {
      puzzle = 100;
      charRotation = 10;
      messageStartTime = millis();
-     message = "YOU WIN  ";
+     message = "BE EXCELLENT TO EACH OTHER  ";
      return; 
    }
   
    updatebuttsensors();
-   noTone(SPEAKER);
   
  
 
@@ -639,26 +651,30 @@ void puzzle2() {
   
 
    pot0avg = pot0avgtmp;
-   pot1avg = pot1avgtmp;
 
-  int inp = map(pot0avg, 0, POTMAX, (int) 'A' , (int) 'Z' + 1 );
+
+  int inp = map(pot0avg, 0, POTMAX, (int) 'A' , (int) 'Z' + 1);
   
   
   if(abs(inp - lastinp) > 0) {
         if(mode == 0) mode = 10;
         if(mode != 11) returnTime = millis() + 3000;
+   } else if(abs(pot1avg - pot1avgtmp) > 1) {
+        mode = 12;
+        returnTime = millis() + 700;
    }
    
   lastinp = inp;
+   pot1avg = pot1avgtmp;
 
 /*  if(bigbutt_avg == 0 && millis() > availTime) { // button pressed
         String inps(inp);
         entry += inps;
         mode = 0; 
         availTime = millis() + 600;
-   }else*/
+   }else  */
    if (mode != 11 && bigbutt_avg == 0){ // reset
-     message = entry + "   WHAT ARE ppppppppp";
+     message = entry + "   WHAT ARE ppppp";
      returnTime = millis() + LETTER_MILLIS * message.length();
      messageStartTime = millis();
      mode = 11;
@@ -667,6 +683,7 @@ void puzzle2() {
    
    
   if(mode == 0){
+    noTone(SPEAKER);
     // blinking cursor
     //drawMessage();
     
@@ -677,6 +694,7 @@ void puzzle2() {
     } 
     
   } else if (mode == 10){
+     noTone(SPEAKER);
      depictchar((char) inp);
 
      if(millis() > returnTime) {
@@ -690,9 +708,17 @@ void puzzle2() {
        mode = 0; 
      }
   } else if (mode == 11){
+    noTone(SPEAKER);
      drawMessage();
      if(millis() > returnTime) {
         entry = "";
+        mode = 0; 
+     }
+  } else if (mode == 12){
+    depictchar('X');
+    tone(SPEAKER, 300);
+    
+    if(millis() > returnTime) {
         mode = 0; 
      }
   }
@@ -702,32 +728,42 @@ void puzzle2() {
 }
  
 
- 
+ boolean holding_small_butt = false;
+ unsigned long small_butt_start = 0;
  
 void puzzle1(){ 
   updatebuttsensors();
   
   //Serial.println(toneval);
   if(bigbutt_avg == 0 ) {
+    holding_small_butt = false;
     if(charRotation == 10) { // the alphabet is correct.
       happynoise();
     } else {
       sadnoise(); 
     }
   } else  if(smallbutt_avg == 0) {
-    mode = 0;
-    charRotation = 10;
-    message = "";
-    puzzle = 2;
-    return;
+    if(holding_small_butt == false) {
+     small_butt_start = millis();
+     holding_small_butt = true ;
+    }
+    if(millis() - small_butt_start > 4000 ) {
+      mode = 0;
+      charRotation = 10;
+      message = "";
+      puzzle = 2;
+      holding_small_butt = false;
+      return;
+    }
   } else {
+   holding_small_butt = false;
    noTone(SPEAKER); 
   } 
 
   int pot0tmp = analogRead(POT0);
   int pot1tmp = analogRead(POT1);
   message = greetings[(pot1tmp * GREETINGS  / POTMAX) % GREETINGS ];
-  charRotation = 10;//map(pot1avg, 0, POTMAX, 0, 31);
+  charRotation = map(pot1avg, 0, POTMAX, 0, 31);
   toneval = map(pot1avg,0,POTMAX, 200,900);
   pot0tot += pot0tmp;
   pot0tot -= lastpot0[potCounter];
@@ -815,7 +851,7 @@ void sadnoise() {
   } else if (t < 300) {
     tone(SPEAKER, 480);
   } else if ( t < 400) {
-    tone(SPEAKER, 420);
+    tone(SPEAKER, 409);
   } else {
    noTone(SPEAKER);
   }    
@@ -918,15 +954,15 @@ int depictchar(char thischar)
   
   int rowpin, columnpin;
   int offset = 0;
-  if(thischar == ' ' )
+  int charnum = (int )thischar;
+  if(thischar == ' ' || charnum > (int) 'q' )
   {
     clearLed();
     return 0;
   }
   
-  
-  
-  offset = 7*(   int ( thischar -  'A')   + charRotation ) ;
+
+  offset = 7*(charnum -  (int) 'A'  + charRotation)  ;
     for(int i=0;i<ROWS;i++) {
       for(int j=0;j<COLUMNS;j++) {
         rowpin = row[i];

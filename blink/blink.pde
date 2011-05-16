@@ -592,25 +592,118 @@ void setup()
 */
 int mode= 0;
 
+int puzzle = 1;
 
 unsigned long returnTime;
 
 void loop()
 {
+  switch (puzzle) {
+  case 1 : 
+    puzzle1(); 
+    break;
+  case 2 :
+    puzzle2();
+    break;
+  case 100 :
+    victory();
+    break;
+  default:
+    break;
+  }
   
-  int bigbutt_tmp = digitalRead(BIGBUTT);
-  int smallbutt_tmp = digitalRead(SMALLBUTT);
-  if(bigbutt_tmp == HIGH) bigbutt_tot += bigbutt_tmp;
-  bigbutt_tot -= lastbigbutt[buttCounter];
-  lastbigbutt[buttCounter] = bigbutt_tmp; 
-  if(smallbutt_tmp == HIGH) smallbutt_tot += smallbutt_tmp;
-  smallbutt_tot -= lastsmallbutt[buttCounter];
-  lastsmallbutt[buttCounter] = smallbutt_tmp;
+}
+ 
+ 
+String entry = ""; 
+unsigned long availTime;
+ 
+ 
+void victory() {
+ 
+ drawMessage(); 
   
-  buttCounter++;
-  if (buttCounter >= BUTT_BUFFER_SIZE) buttCounter = 0;
-  bigbutt_avg = bigbutt_tot / BUTT_BUFFER_SIZE;
-  smallbutt_avg = smallbutt_tot / BUTT_BUFFER_SIZE;
+}
+ 
+void puzzle2() {
+
+   if(entry.equals("HOUSE")){
+     puzzle = 100;
+     charRotation = 0;
+     message = "YOU WIN  ";
+     return; 
+   }
+  
+   updatebuttsensors();
+   noTone(SPEAKER);
+  
+ 
+
+  int pot0tmp = analogRead(POT0);
+  int pot1tmp = analogRead(POT1);
+  charRotation = map(pot1avg, 0, POTMAX, 0, 31);
+  toneval = map(pot1avg,0,POTMAX, 200,900);
+  pot0tot += pot0tmp;
+  pot0tot -= lastpot0[potCounter];
+  lastpot0[potCounter] = pot0tmp; 
+  pot1tot += pot1tmp;
+  pot1tot -= lastpot1[potCounter];
+  lastpot1[potCounter] = pot1tmp; 
+  potCounter++;
+  if (potCounter >= POT_BUFFER_SIZE) potCounter = 0;
+  int pot0avgtmp = pot0tot / POT_BUFFER_SIZE;
+  int pot1avgtmp = pot1tot / POT_BUFFER_SIZE;
+  if(abs(pot0avg - pot0avgtmp) > 1) {
+        mode = 10;
+        returnTime = millis() + 3000;
+   }
+   pot0avg = pot0avgtmp;
+   pot1avg = pot1avgtmp;
+
+
+
+  char inp = map(pot0avg,0, POTMAX, 'A' , 'Z' );
+  if(bigbutt_avg == 0 && millis() > availTime) { // button pressed
+        String inps(inp);
+        entry += inps;
+        mode = 0; 
+        availTime = millis() + 600;
+   }else if (smallbutt_avg == 0){ // reset
+     entry = "";
+   }
+   
+   
+
+
+  if(mode == 0){
+    // blinking cursor
+    if ( (millis() % 1000) < 500){
+       bar0(entry.length(), 35);
+    } else {
+       bar0(entry.length()+1, 35);
+    } 
+    
+  } else if (mode == 10){
+     depictchar(inp);
+     if(millis() > returnTime) {
+       mode = 0;
+     }
+  } else if (mode == 11){
+     bar1(analogRead(POT1),POTMAX);
+     if(millis() > returnTime) {
+        mode = 0; 
+     }
+  }
+  
+  
+  
+}
+ 
+
+ 
+ 
+void puzzle1(){ 
+  updatebuttsensors();
   
   //Serial.println(toneval);
   if(bigbutt_avg == 0 ) {
@@ -620,7 +713,9 @@ void loop()
       sadnoise(); 
     }
   } else  if(smallbutt_avg == 0) {
-    sadnoise();
+    mode = 0;
+    charRotation = 10;
+    puzzle = 2;
   } else {
    noTone(SPEAKER); 
   } 
@@ -670,6 +765,26 @@ void loop()
 
 }
 
+
+
+void updatebuttsensors() {
+  int bigbutt_tmp = digitalRead(BIGBUTT);
+  int smallbutt_tmp = digitalRead(SMALLBUTT);
+  if(bigbutt_tmp == HIGH) bigbutt_tot += bigbutt_tmp;
+  bigbutt_tot -= lastbigbutt[buttCounter];
+  lastbigbutt[buttCounter] = bigbutt_tmp; 
+  if(smallbutt_tmp == HIGH) smallbutt_tot += smallbutt_tmp;
+  smallbutt_tot -= lastsmallbutt[buttCounter];
+  lastsmallbutt[buttCounter] = smallbutt_tmp;
+  
+  buttCounter++;
+  if (buttCounter >= BUTT_BUFFER_SIZE) buttCounter = 0;
+  bigbutt_avg = bigbutt_tot / BUTT_BUFFER_SIZE;
+  smallbutt_avg = smallbutt_tot / BUTT_BUFFER_SIZE; 
+  
+}
+ 
+ 
 
 unsigned long messageMillis() {
    return millis() - messageStartTime; 

@@ -11,6 +11,7 @@
 
 
 int row[] = {1,12,4,11,10,8,7};
+//int row[] = {12,12,4,11,10,8,7};
 int column[] = {5,6,3,9,13};
 
 
@@ -516,7 +517,7 @@ String greetings[] = {
 
 int charRotation = 0;
 
-String message = "HELLO WORLD  ";  
+String message = "START  ";  
 
 unsigned long messageStartTime;
 
@@ -564,7 +565,6 @@ void setup()
    lastpot1[i] = 0; 
   }
   
-  message = "ABCDEFGHIJKLMNOPQRSTUVWXYZ  ";
   messageStartTime = millis();
     
  
@@ -644,7 +644,6 @@ void puzzle2() {
 
   int pot0tmp = analogRead(POT0);
   int pot1tmp = analogRead(POT1);
-  charRotation = map(pot1avg, 0, POTMAX, 0, 31);
   toneval = map(pot1avg,0,POTMAX, 200,900);
   pot0tot += pot0tmp;
   pot0tot -= lastpot0[potCounter];
@@ -688,6 +687,8 @@ void puzzle2() {
    
   if(mode == 0){
     // blinking cursor
+    //drawMessage();
+    
     if ( (millis() % 1000) < 500){
        bar0(entry.length(), 35);
     } else {
@@ -703,7 +704,8 @@ void puzzle2() {
        //Serial.println((char) inp);
        //Serial.println(inps);
        entry += inps;
-       //Serial.println(entry);
+       //Serial.println(message + " " + entry);
+       //Serial.println(charRotation);
        mode = 0; 
      }
   } else if (mode == 11){
@@ -734,7 +736,9 @@ void puzzle1(){
   } else  if(smallbutt_avg == 0) {
     mode = 0;
     charRotation = 10;
+    message = "NAME THIS ";
     puzzle = 2;
+    return;
   } else {
    noTone(SPEAKER); 
   } 
@@ -742,7 +746,7 @@ void puzzle1(){
   int pot0tmp = analogRead(POT0);
   int pot1tmp = analogRead(POT1);
   message = greetings[(pot1tmp * GREETINGS  / POTMAX) % GREETINGS ];
-  charRotation = map(pot1avg, 0, POTMAX, 0, 31);
+  charRotation = 10;//map(pot1avg, 0, POTMAX, 0, 31);
   toneval = map(pot1avg,0,POTMAX, 200,900);
   pot0tot += pot0tmp;
   pot0tot -= lastpot0[potCounter];
@@ -844,18 +848,6 @@ void drawMessage(){
    depictchar( message.charAt(i) );
  }
 }
-
-void getSerial()
-{
-  if (Serial.available() > 0) 
-  {
-    int light = (Serial.read());
-    int rownumber = light%8;
-    int columnnumber = light/8;
-    lightLed(rownumber,columnnumber);
-  }  
-}
-
 
 
 

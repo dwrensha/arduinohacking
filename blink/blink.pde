@@ -15,29 +15,6 @@ int row[] = {1,12,4,11,10,8,7};
 int column[] = {5,6,3,9,13};
 
 
-
-/*
-boolean wug[ROWS][COLUMNS] = {
-  {0,1,1,0,0},
-  {1,0,0,1,0},
-  {0,1,0,1,0},
-  {0,1,0,1,0},
-  {0,1,0,0,1},
-  {0,0,1,1,0},
-  {0,1,1,0,0}
-  };
-*/  
-
-boolean fish[ROWS][COLUMNS] = {
-  {0,1,1,1,0},
-  {0,0,1,0,0},
-  {0,0,1,0,0},
-  {0,1,1,1,0},
-  {1,1,1,1,1},
-  {1,1,1,1,1},
-  {0,1,1,1,0}
-  };
-
 // progmem means store in flash
  boolean alphabet[][COLUMNS] PROGMEM  =
   {
@@ -497,8 +474,14 @@ boolean fish[ROWS][COLUMNS] = {
 {1,0,1,1,0},
 {1,0,0,1,0},
 {1,0,0,1,0},
-
-
+// wug = 'p'
+  {0,1,1,0,0},
+  {1,0,0,1,0},
+  {0,1,0,1,0},
+  {0,1,0,1,0},
+  {0,1,0,0,1},
+  {0,0,1,1,0},
+  {0,1,1,0,0}
   };
   
 
@@ -517,7 +500,7 @@ String greetings[] = {
 
 int charRotation = 0;
 
-String message = "START  ";  
+String message = "";  
 
 unsigned long messageStartTime;
 
@@ -615,13 +598,9 @@ void loop()
 }
  
  
-
- 
  
 void victory() {
- 
  drawMessage(); 
-  
 }
  
  String entry = ""; 
@@ -630,9 +609,10 @@ char lastinp = 'A';
  
 void puzzle2() {
 
-   if(entry.equals("WAT")){
+   if(entry.equals("WUGS")){
      puzzle = 100;
      charRotation = 10;
+     messageStartTime = millis();
      message = "YOU WIN  ";
      return; 
    }
@@ -661,7 +641,7 @@ void puzzle2() {
    pot0avg = pot0avgtmp;
    pot1avg = pot1avgtmp;
 
-  int inp = map(pot0avg, 0, POTMAX, (int) 'A' , (int) 'Z' );
+  int inp = map(pot0avg, 0, POTMAX, (int) 'A' , (int) 'Z' + 1 );
   
   
   if(abs(inp - lastinp) > 0) {
@@ -677,11 +657,12 @@ void puzzle2() {
         mode = 0; 
         availTime = millis() + 600;
    }else*/
-   if (mode != 11 && smallbutt_avg == 0){ // reset
-     returnTime = millis() + LETTER_MILLIS * entry.length();
+   if (mode != 11 && bigbutt_avg == 0){ // reset
+     message = entry + "   WHAT ARE ppppppppp";
+     returnTime = millis() + LETTER_MILLIS * message.length();
      messageStartTime = millis();
      mode = 11;
-     message = entry;
+
    }
    
    
@@ -736,7 +717,7 @@ void puzzle1(){
   } else  if(smallbutt_avg == 0) {
     mode = 0;
     charRotation = 10;
-    message = "NAME THIS ";
+    message = "";
     puzzle = 2;
     return;
   } else {

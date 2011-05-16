@@ -615,8 +615,7 @@ void loop()
 }
  
  
-String entry = ""; 
-unsigned long availTime;
+
  
  
 void victory() {
@@ -625,11 +624,15 @@ void victory() {
   
 }
  
+ String entry = ""; 
+unsigned long availTime;
+char lastinp = 'A';
+ 
 void puzzle2() {
 
-   if(entry.equals("HOUSE")){
+   if(entry.equals("WAT")){
      puzzle = 100;
-     charRotation = 0;
+     charRotation = 10;
      message = "YOU WIN  ";
      return; 
    }
@@ -653,28 +656,36 @@ void puzzle2() {
   if (potCounter >= POT_BUFFER_SIZE) potCounter = 0;
   int pot0avgtmp = pot0tot / POT_BUFFER_SIZE;
   int pot1avgtmp = pot1tot / POT_BUFFER_SIZE;
-  if(abs(pot0avg - pot0avgtmp) > 1) {
-        mode = 10;
-        returnTime = millis() + 3000;
-   }
+  
+  
+
    pot0avg = pot0avgtmp;
    pot1avg = pot1avgtmp;
 
+  int inp = map(pot0avg, 0, POTMAX, (int) 'A' , (int) 'Z' );
+  
+  
+  if(abs(inp - lastinp) > 0) {
+        if(mode == 0) mode = 10;
+        if(mode != 11) returnTime = millis() + 3000;
+   }
+   
+  lastinp = inp;
 
-
-  char inp = map(pot0avg,0, POTMAX, 'A' , 'Z' );
-  if(bigbutt_avg == 0 && millis() > availTime) { // button pressed
+/*  if(bigbutt_avg == 0 && millis() > availTime) { // button pressed
         String inps(inp);
         entry += inps;
         mode = 0; 
         availTime = millis() + 600;
-   }else if (smallbutt_avg == 0){ // reset
-     entry = "";
+   }else*/
+   if (mode != 11 && smallbutt_avg == 0){ // reset
+     returnTime = millis() + LETTER_MILLIS * entry.length();
+     messageStartTime = millis();
+     mode = 11;
+     message = entry;
    }
    
    
-
-
   if(mode == 0){
     // blinking cursor
     if ( (millis() % 1000) < 500){
@@ -684,13 +695,21 @@ void puzzle2() {
     } 
     
   } else if (mode == 10){
-     depictchar(inp);
+     depictchar((char) inp);
+
      if(millis() > returnTime) {
-       mode = 0;
+       String inps((char) inp);
+       //Serial.println("--");
+       //Serial.println((char) inp);
+       //Serial.println(inps);
+       entry += inps;
+       //Serial.println(entry);
+       mode = 0; 
      }
   } else if (mode == 11){
-     bar1(analogRead(POT1),POTMAX);
+     drawMessage();
      if(millis() > returnTime) {
+        entry = "";
         mode = 0; 
      }
   }
@@ -934,7 +953,7 @@ int depictchar(char thischar)
   
   
   
-  offset = 7*( int(thischar-65)   + charRotation ) ;
+  offset = 7*(   int ( thischar -  'A')   + charRotation ) ;
     for(int i=0;i<ROWS;i++) {
       for(int j=0;j<COLUMNS;j++) {
         rowpin = row[i];

@@ -15,7 +15,7 @@ int column[] = {5,6,3,9,13};
 
 
 
-
+/*
 boolean wug[ROWS][COLUMNS] = {
   {0,1,1,0,0},
   {1,0,0,1,0},
@@ -25,11 +25,101 @@ boolean wug[ROWS][COLUMNS] = {
   {0,0,1,1,0},
   {0,1,1,0,0}
   };
-  
+*/  
+
+boolean fish[ROWS][COLUMNS] = {
+  {0,1,1,1,0},
+  {0,0,1,0,0},
+  {0,0,1,0,0},
+  {0,1,1,1,0},
+  {1,1,1,1,1},
+  {1,1,1,1,1},
+  {0,1,1,1,0}
+  };
 
 // progmem means store in flash
- boolean alphabet[217][COLUMNS] PROGMEM  =
+ boolean alphabet[][COLUMNS] PROGMEM  =
   {
+//
+{0,1,1,1,0},
+{1,0,1,0,1},
+{1,0,1,0,1},
+{1,1,1,0,1},
+{1,0,0,0,1},
+{1,0,0,0,1},
+{0,1,1,1,0},
+//
+{1,1,1,1,1},
+{1,0,0,0,1},
+{0,0,0,0,0},
+{1,0,0,0,1},
+{1,1,1,1,1},
+{1,0,0,0,1},
+{1,1,1,1,1},
+//
+{0,1,1,1,0},
+{1,0,0,0,1},
+{1,0,1,0,1},
+{0,1,1,1,0},
+{1,0,1,0,1},
+{1,0,0,0,1},
+{0,1,1,1,0},
+//
+{1,1,1,1,1},
+{0,0,1,0,0},
+{0,0,1,0,0},
+{0,0,1,0,0},
+{0,0,1,0,0},
+{0,0,1,0,0},
+{0,1,1,1,0},
+//
+{1,0,0,0,1},
+{1,0,1,0,1},
+{1,1,0,1,1},
+{1,0,0,0,1},
+{1,0,0,0,1},
+{1,0,0,0,1},
+{0,1,1,1,0},
+//
+{1,0,1,0,1},
+{1,0,1,0,1},
+{0,1,1,1,0},
+{0,1,1,1,0},
+{0,1,1,1,0},
+{0,0,1,0,0},
+{0,0,1,0,0},
+//
+{1,1,0,1,1},
+{1,0,1,0,1},
+{1,0,0,0,1},
+{1,0,0,0,1},
+{1,0,1,0,1},
+{0,1,0,1,0},
+{0,1,0,1,0},
+//
+{1,0,0,0,1},
+{1,0,0,0,1},
+{0,1,0,1,0},
+{1,1,1,1,1},
+{0,1,0,1,0},
+{1,0,0,0,1},
+{1,0,0,0,1},
+//
+{1,0,0,0,1},
+{1,0,0,0,1},
+{0,1,0,1,0},
+{0,0,1,0,0},
+{1,1,1,1,1},
+{1,0,1,0,1},
+{1,0,1,0,1},
+//
+{1,1,1,1,1},
+{1,0,0,0,1},
+{0,1,0,1,0},
+{0,0,1,0,0},
+{0,1,0,1,0},
+{1,0,0,0,1},
+{1,1,1,1,1},
 //a
 {0,1,1,1,0},
 {1,0,0,0,1},
@@ -278,11 +368,140 @@ boolean wug[ROWS][COLUMNS] = {
 {0,0,0,0,0},
 {0,0,0,0,0},
 {1,1,1,1,1},
+//
+{0,1,1,1,0},
+{1,0,1,0,1},
+{1,0,1,0,1},
+{1,0,1,0,1},
+{1,1,1,1,1},
+{1,0,1,0,1},
+{1,0,0,0,1},
+//
+{0,1,1,1,0},
+{1,0,0,0,1},
+{1,0,0,0,1},
+{1,1,1,1,0},
+{1,0,0,0,1},
+{1,0,0,0,1},
+{0,1,1,1,0},
+//
+{0,1,1,1,0},
+{1,0,0,0,1},
+{1,0,0,1,0},
+{1,0,0,1,0},
+{1,0,0,1,0},
+{1,0,0,0,1},
+{0,1,1,1,0},
+//
+{1,1,1,1,0},
+{1,1,0,0,1},
+{1,0,1,0,1},
+{1,0,0,1,1},
+{1,0,1,0,1},
+{1,1,0,0,1},
+{1,1,1,1,0},
+//
+{1,1,1,1,1},
+{1,0,1,0,0},
+{1,0,1,0,0},
+{1,1,1,1,0},
+{1,0,1,0,0},
+{1,0,1,0,0},
+{1,1,1,1,1},
+//
+{1,1,1,1,1},
+{1,0,0,0,1},
+{1,0,0,1,0},
+{1,1,1,1,0},
+{1,0,0,1,0},
+{1,0,0,1,0},
+{1,1,1,0,0},
+//
+{0,1,1,1,0},
+{1,0,0,0,1},
+{1,0,0,0,1},
+{1,0,0,0,1},
+{1,1,1,1,1},
+{1,0,0,0,1},
+{1,1,1,1,1},
+//
+{1,0,1,0,1},
+{1,0,1,0,1},
+{1,0,1,0,1},
+{1,1,1,1,1},
+{1,0,1,0,1},
+{1,0,1,0,1},
+{1,1,1,1,1},
+//
+{1,1,1,1,1},
+{0,0,1,0,0},
+{0,0,1,0,0},
+{1,1,1,1,1},
+{0,0,1,0,0},
+{0,0,1,0,0},
+{1,1,1,1,1},
+//
+{1,1,1,1,1},
+{1,0,0,1,0},
+{0,0,0,1,0},
+{0,1,0,1,0},
+{0,1,0,1,0},
+{1,0,0,1,0},
+{0,1,1,0,0},
+//
+{1,0,0,0,1},
+{1,0,0,1,1},
+{1,0,1,0,1},
+{1,1,0,0,1},
+{1,0,1,0,1},
+{1,0,0,1,1},
+{1,0,0,0,1},
+//
+{1,0,0,0,0},
+{1,1,0,0,0},
+{1,0,1,0,0},
+{1,0,0,1,0},
+{1,0,0,0,1},
+{1,0,0,0,1},
+{1,1,1,1,1},
+//
+{1,0,0,0,1},
+{1,1,0,1,1},
+{1,0,1,0,1},
+{1,0,1,0,1},
+{1,0,1,0,1},
+{1,1,1,1,1},
+{1,0,1,0,1},
+//
+{1,1,1,1,1},
+{1,1,0,0,1},
+{1,0,1,0,1},
+{1,0,0,1,1},
+{1,0,0,0,1},
+{1,0,0,0,1},
+{1,1,1,1,1},
+//
+{0,1,1,1,0},
+{1,0,0,0,1},
+{1,1,1,1,1},
+{1,0,0,0,1},
+{1,1,1,1,1},
+{1,0,0,0,1},
+{0,1,1,1,0},
+//
+{1,1,1,1,0},
+{1,0,0,0,1},
+{1,1,1,1,1},
+{1,0,1,0,1},
+{1,0,1,1,0},
+{1,0,0,1,0},
+{1,0,0,1,0},
+
 
   };
   
 
-#define LETTER_MILLIS 300
+#define LETTER_MILLIS 400
 
 #define GREETINGS 6
 
@@ -394,20 +613,22 @@ void loop()
   smallbutt_avg = smallbutt_tot / BUTT_BUFFER_SIZE;
   
   //Serial.println(toneval);
-  if(bigbutt_avg == 0) {
-    tone(SPEAKER, 440 );
+  if(bigbutt_avg == 0 ) {
+    if(charRotation == 10) { // the alphabet is correct.
+      happynoise();
+    } else {
+      sadnoise(); 
+    }
   } else  if(smallbutt_avg == 0) {
-    tone(SPEAKER, 220 );
-    //noTone(SPEAKER);
-    
+    sadnoise();
   } else {
    noTone(SPEAKER); 
   } 
 
   int pot0tmp = analogRead(POT0);
   int pot1tmp = analogRead(POT1);
-  //message = greetings[(pot1tmp * GREETINGS  / POTMAX) % GREETINGS ];
-  charRotation = 0 ; //map(pot1avg, 0, POTMAX, 10, 47);
+  message = greetings[(pot1tmp * GREETINGS  / POTMAX) % GREETINGS ];
+  charRotation = map(pot1avg, 0, POTMAX, 0, 31);
   toneval = map(pot1avg,0,POTMAX, 200,900);
   pot0tot += pot0tmp;
   pot0tot -= lastpot0[potCounter];
@@ -454,11 +675,39 @@ unsigned long messageMillis() {
    return millis() - messageStartTime; 
 }
 
+void happynoise() {
+  int t = millis() % 1000;
+  if (t < 250){
+   tone(SPEAKER, 420 );
+  } else if (t < 500){
+    tone(SPEAKER,560);
+  } else{
+   noTone(SPEAKER);
+  }   
+}
+
+
+void sadnoise() {
+  int t = millis() % 1000;
+  if (t < 100){
+   tone(SPEAKER, 560);
+  } else if (t < 200){
+    tone(SPEAKER,540);
+  } else if (t < 300) {
+    tone(SPEAKER, 480);
+  } else if ( t < 400) {
+    tone(SPEAKER, 420);
+  } else {
+   noTone(SPEAKER);
+  }    
+}
+
+
 void drawMessage(){
   
  int i = (messageMillis() / LETTER_MILLIS) % message.length();
  if(messageMillis() % LETTER_MILLIS   < LETTER_MILLIS * 3 / 4){
-   depictchar(   rotatechar(message.charAt(i), charRotation)  );
+   depictchar( message.charAt(i) );
  }
 }
 
@@ -466,7 +715,6 @@ void getSerial()
 {
   if (Serial.available() > 0) 
   {
-    
     int light = (Serial.read());
     int rownumber = light%8;
     int columnnumber = light/8;
@@ -521,6 +769,8 @@ void clearLed() {
   }   
 }
 
+
+
 void bar1(int myval, int maxval) {
   //Serial.println(myval);  
   int s =  myval * ROWS * COLUMNS / maxval;
@@ -558,6 +808,7 @@ void bar1(int myval, int maxval) {
 
 int depictchar(char thischar)
 {
+  
   int rowpin, columnpin;
   int offset = 0;
   if(thischar == ' ' )
@@ -565,7 +816,10 @@ int depictchar(char thischar)
     clearLed();
     return 0;
   }
-  else offset = 7*int(thischar-65);
+  
+  
+  
+  offset = 7*( int(thischar-65)   + charRotation ) ;
     for(int i=0;i<ROWS;i++) {
       for(int j=0;j<COLUMNS;j++) {
         rowpin = row[i];
@@ -584,7 +838,7 @@ int depictchar(char thischar)
 
 
 char rotatechar( char thischar, int thismany) {
- int res= (((thischar - 'A' ) + (thismany % 26)) % 26)  + 'A';
+ int res = (((thischar - 'A' ) + (thismany % 26)) % 26)  + 'A';
  if(res >= 'A' && res <= 'Z') {
    return res;
  } else{
